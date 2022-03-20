@@ -1,0 +1,3 @@
+imagePath: /path/to/image.png // path to the image
+blurSize: i // how big you want the image to blur, done as a i * i box
+diceSize: 150 // which size dice you want the finished picture to show, 50, 100, 150,  or 200
