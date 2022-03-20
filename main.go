@@ -7,9 +7,10 @@ import (
 )
 
 type conf struct {
-	ImagePath string `yaml:"imagePath"`
-	BlurSize  int    `yaml:"blurSize"`
-	DiceSize  int    `yaml:"diceSize"`
+	ImagePath string `yaml:"ImagePath"`
+	ImageName string `yaml:"ImageName"`
+	BlurSize  int    `yaml:"BlurSize"`
+	DiceSize  int    `yaml:"DiceSize"`
 }
 
 func (c *conf) getConf() *conf {
@@ -30,6 +31,7 @@ func main() {
 
 	blurSize := c.BlurSize
 	path := c.ImagePath
+	path = path + c.ImageName
 	size := c.DiceSize
 
 	grayImg, err := imageHandler.GetGrayImageFromPath(path)

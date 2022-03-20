@@ -2,6 +2,7 @@ package imageHandler
 
 import (
 	"fmt"
+	"gonum.org/v1/gonum/stat"
 	"image"
 	"image/color"
 	"image/jpeg"
@@ -11,7 +12,7 @@ import (
 	"os"
 )
 
-func CreateDiceFromGrayImage(img image.Image, diceImageSize int) (image.Image, error) {
+func CreateDiceFromGrayImage(img image.Image, diceImageSize int) (image.Image, error) { // todo remove saving of gray image and do that pixel by pixel at runtime
 	bounds := img.Bounds()
 	width, height := bounds.Max.X, bounds.Max.Y
 
@@ -73,7 +74,7 @@ func PixelateImage(img image.Image, blurSize int) (image.Image, error) {
 	newY := 0
 	for y := 0; y < bounds.Max.Y; y += blurSize {
 		for x := 0; x < bounds.Max.X; x += blurSize {
-			ave := imgAve(img, x, y, blurSize)
+			ave := blockMean(img, x, y, blurSize)
 			pixImg.Set(newX, newY, color.Gray{Y: ave})
 			newX += 1
 		}
@@ -83,18 +84,20 @@ func PixelateImage(img image.Image, blurSize int) (image.Image, error) {
 	return pixImg, nil
 }
 
-func imgAve(img image.Image, x, y, size int) uint8 {
-	ave := 0
-	yLow := y
-	yHigh := y + size
-	xLow := x
-	xHigh := x + size
+func blockMean(img image.Image, startingX, staringY, size int) uint8 {
+	yLow := staringY
+	yHigh := staringY + size
+	xLow := startingX
+	xHigh := startingX + size
+	var block []float64
 	for y := yLow; y < yHigh; y++ {
-		for x := xLow; x <= xHigh; x++ {
-			ave += rgbaGetR(img.At(x, y))
+		for x := xLow; x < xHigh; x++ {
+			value := rgbaGetR(img.At(x, y))
+			block = append(block, float64(value))
 		}
 	}
-	return uint8(ave / (size * size))
+	m := stat.Mean(block, nil)
+	return uint8(m)
 }
 
 func rgbaGetR(rgba color.Color) int {
